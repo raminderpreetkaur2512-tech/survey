@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Login({ setAuth }) {
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,7 +15,8 @@ function Login({ setAuth }) {
 
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/login", { pin });
+
+      const res = await axios.post(`${API_URL}/login`, { pin });
 
       if (res.data.success) {
         setAuth(true);
@@ -21,6 +24,7 @@ function Login({ setAuth }) {
         alert("Invalid PIN");
       }
     } catch (err) {
+      console.error("Login Error:", err);
       alert("Server error");
     } finally {
       setLoading(false);
@@ -30,11 +34,7 @@ function Login({ setAuth }) {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-        
-        {/* Logo Circle */}
-        <div style={styles.logoCircle}>
-          🔐
-        </div>
+        <div style={styles.logoCircle}>🔐</div>
 
         <h2 style={styles.title}>Survey Admin Panel</h2>
         <p style={styles.subtitle}>Sign in to access your dashboard</p>

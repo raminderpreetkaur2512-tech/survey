@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function ImportData() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -15,7 +17,6 @@ function ImportData() {
 
     const fileName = selectedFile.name.toLowerCase();
 
-    // ✅ Only CSV allowed now
     if (!fileName.endsWith(".csv")) {
       alert("Only CSV files are allowed.");
       e.target.value = null;
@@ -48,7 +49,7 @@ function ImportData() {
       setMessage("Uploading CSV file...");
 
       const response = await axios.post(
-        "http://127.0.0.1:5000/import-csv", // ✅ updated endpoint
+        `${API_URL}/import-csv`,
         formData,
         {
           headers: {

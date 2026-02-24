@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function ViewRecords() {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -16,12 +18,11 @@ function ViewRecords() {
       setLoading(true);
 
       const res = await axios.get(
-        `http://127.0.0.1:5000/app-records?page=${pageNumber}&search=${searchValue}`
+        `${API_URL}/app-records?page=${pageNumber}&search=${searchValue}`
       );
 
       setData(res.data.data || []);
       setTotal(res.data.total || 0);
-
     } catch (error) {
       console.error("Fetch error:", error);
       setData([]);
@@ -43,9 +44,18 @@ function ViewRecords() {
     <div style={{ padding: "30px" }}>
       <h2>📊 Survey Data</h2>
 
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", fontWeight: "600" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "10px",
+          fontWeight: "600",
+        }}
+      >
         <span>Total Records: {total}</span>
-        <span>Page {page} of {totalPages || 1}</span>
+        <span>
+          Page {page} of {totalPages || 1}
+        </span>
       </div>
 
       {/* Search */}
@@ -59,7 +69,7 @@ function ViewRecords() {
             padding: "8px",
             flex: 1,
             borderRadius: "5px",
-            border: "1px solid #ccc"
+            border: "1px solid #ccc",
           }}
         />
         <button
@@ -70,7 +80,7 @@ function ViewRecords() {
             background: "#2563eb",
             color: "#fff",
             borderRadius: "5px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Search
@@ -85,7 +95,7 @@ function ViewRecords() {
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              background: "#fff"
+              background: "#fff",
             }}
           >
             <thead>
@@ -112,7 +122,9 @@ function ViewRecords() {
                   <tr key={row.id}>
                     <td>{row.id}</td>
                     <td>{row.AC_NAME_V1}</td>
-                    <td>{row.FNAME} {row.LNAME}</td>
+                    <td>
+                      {row.FNAME} {row.LNAME}
+                    </td>
                     <td>{row.CARDNO}</td>
                     <td>{row.MNO}</td>
                     <td>{row.DIST_NAME_EN}</td>
@@ -126,7 +138,14 @@ function ViewRecords() {
       )}
 
       {/* Pagination */}
-      <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
+      <div
+        style={{
+          marginTop: "20px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+        }}
+      >
         <button
           onClick={() => setPage(page - 1)}
           disabled={page === 1}
@@ -136,7 +155,7 @@ function ViewRecords() {
             background: "#2563eb",
             color: "#fff",
             borderRadius: "5px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           ⬅ Prev
@@ -151,7 +170,7 @@ function ViewRecords() {
             background: "#2563eb",
             color: "#fff",
             borderRadius: "5px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Next ➡
