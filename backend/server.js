@@ -62,7 +62,15 @@ const safeNumber = (val) => {
 app.get("/", (req, res) => {
   res.send("Survey Backend is Running 🚀");
 });
-
+app.get("/test-db", async (req, res) => {
+  try {
+    const [rows] = await db.promise().query("SELECT 1");
+    res.json({ ok: true });
+  } catch (err) {
+    console.log("DB TEST ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 // login api
 
 app.post("/login", async (req, res) => {
