@@ -68,16 +68,34 @@ app.get("/", (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const { pin } = req.body;
+
+    if (!pin) {
+      return res.status(400).json({ success: false, message: "PIN required" });
+    }
+
+    // Trim & convert safely
+    const cleanPin = pin.toString().trim();
+
     const [rows] = await db.promise().query(
       "SELECT id FROM admins WHERE pin = ? LIMIT 1",
-      [pin]
+      [cleanPin]   // works for both INT & VARCHAR
     );
-    res.json({ success: rows.length > 0 });
+
+    if (rows.length > 0) {
+      return res.json({ success: true });
+    } else {
+      return res.json({ success: false });
+    }
+
   } catch (err) {
-    console.log("LOGIN ERROR:", err);
-    res.status(500).json({ success: false });
+    console.log("🔥 LOGIN ERROR FULL:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
+
 /* ==============================
    CSV IMPORT API
 ============================== */
