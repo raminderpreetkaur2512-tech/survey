@@ -19,17 +19,19 @@ app.use(express.json({ limit: "50mb" }));
 /* ==============================
    MYSQL CONNECTION POOL
 ============================== */
+console.log("==== ENV DEBUG START ====");
+console.log("DB_HOST =>", JSON.stringify(process.env.DB_HOST));
+console.log("DB_USER =>", JSON.stringify(process.env.DB_USER));
+console.log("DB_PORT =>", JSON.stringify(process.env.DB_PORT));
+console.log("DB_NAME =>", JSON.stringify(process.env.DB_NAME));
+console.log("==== ENV DEBUG END ====");
 
 const db = mysql.createPool({
-  host: process.env.DB_HOST.trim(),
-  user: process.env.DB_USER.trim(),
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT),
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  connectTimeout: 60000,
   ssl: {
     minVersion: "TLSv1.2",
     rejectUnauthorized: false
