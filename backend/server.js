@@ -269,26 +269,37 @@ app.get("/app-records", async (req, res) => {
     const limit = 50;
     const offset = (page - 1) * limit;
 
-    let whereClause = "";
+    let whereClause = "WHERE 1=1";
     let values = [];
 
+    // Search
     if (search) {
-      whereClause = `
-        WHERE 
+      whereClause += `
+        AND (
           FNAME LIKE ? OR 
           LNAME LIKE ? OR 
           CARDNO LIKE ? OR 
           MNO LIKE ?
+        )
       `;
-      values = [
+      values.push(
         `%${search}%`,
         `%${search}%`,
         `%${search}%`,
         `%${search}%`
-      ];
+      );
     }
 
-    // Get total count
+    // Dynamic filter (PART / SEX / AGE / etc)
+    const allowed = ["PART", "SEX", "AGE", "FNAME", "LNAME"];
+
+    for (let key of allowed) {
+      if (req.query[key]) {
+        whereClause += ` AND ${key} = ?`;
+        values.push(req.query[key]);
+      }
+    }
+
     const [countResult] = await db.promise().query(
       `SELECT COUNT(*) as total FROM survey_admin ${whereClause}`,
       values
@@ -296,7 +307,6 @@ app.get("/app-records", async (req, res) => {
 
     const total = countResult[0].total;
 
-    // Get paginated data
     const [rows] = await db.promise().query(
       `SELECT * FROM survey_admin
        ${whereClause}
@@ -312,6 +322,41 @@ app.get("/app-records", async (req, res) => {
 
   } catch (error) {
     console.error("FETCH ERROR:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+/* ==============================
+   FILTER COUNTS (FOR APP FILTER SCREEN)
+============================== */
+
+app.get("/filter-counts", async (req, res) => {
+  try {
+    const type = req.query.type;
+
+    if (!type) {
+      return res.status(400).json({ error: "Filter type required" });
+    }
+
+    // Allowed columns (security purpose)
+    const allowed = ["PART", "SEX", "AGE", "FNAME", "LNAME"];
+
+    if (!allowed.includes(type)) {
+      return res.status(400).json({ error: "Invalid filter type" });
+    }
+
+    const [rows] = await db.promise().query(`
+      SELECT ${type} as value, COUNT(*) as total
+      FROM survey_admin
+      WHERE ${type} IS NOT NULL AND ${type} != ''
+      GROUP BY ${type}
+      ORDER BY total DESC
+      LIMIT 200
+    `);
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error("FILTER COUNT ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 });
