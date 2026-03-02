@@ -166,6 +166,38 @@ app.post("/create-user", async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
+
+app.get("/users", async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(
+      "SELECT id, email FROM users ORDER BY id DESC"
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+app.post("/assign-user-data", async (req, res) => {
+  try {
+    const { user_id, filter_type, filter_value } = req.body;
+
+    if (!user_id || !filter_type || !filter_value) {
+      return res.status(400).json({
+        message: "All fields required"
+      });
+    }
+
+    await db.promise().query(
+      "INSERT INTO user_assignments (user_id, filter_type, filter_value) VALUES (?, ?, ?)",
+      [user_id, filter_type, filter_value]
+    );
+
+    res.json({ message: "Data Assigned Successfully" });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 /* ==============================
    CSV IMPORT API
 ============================== */
