@@ -121,6 +121,51 @@ app.post("/login", async (req, res) => {
     });
   }
 });
+
+
+// ==============================
+// CREATE USER (ADMIN APP)
+// ==============================
+
+app.post("/create-user", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and Password required"
+      });
+    }
+
+    // Check if already exists
+    const [existing] = await db.promise().query(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists"
+      });
+    }
+
+    await db.promise().query(
+      "INSERT INTO users (email, password) VALUES (?, ?)",
+      [email, password]   // simple save (no hashing)
+    );
+
+    res.json({
+      success: true,
+      message: "User Created Successfully"
+    });
+
+  } catch (error) {
+    console.error("CREATE USER ERROR:", error);
+    res.status(500).json({ success: false });
+  }
+});
 /* ==============================
    CSV IMPORT API
 ============================== */
