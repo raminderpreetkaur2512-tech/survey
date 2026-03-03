@@ -368,14 +368,45 @@ app.get("/app-records", async (req, res) => {
     }
 
     // Dynamic filter (PART / SEX / AGE / etc)
-    const allowed = ["PART", "SEX", "AGE", "FNAME", "LNAME"];
+    // PART filter (single or range)
+if (req.query.PART) {
+  if (req.query.PART.includes("-")) {
+    const [start, end] = req.query.PART.split("-").map(Number);
+    whereClause += ` AND CAST(PART AS UNSIGNED) BETWEEN ? AND ?`;
+    values.push(start, end);
+  } else {
+    whereClause += ` AND PART = ?`;
+    values.push(req.query.PART);
+  }
+}
 
-    for (let key of allowed) {
-      if (req.query[key]) {
-        whereClause += ` AND ${key} = ?`;
-        values.push(req.query[key]);
-      }
-    }
+// AGE filter (single or range)
+if (req.query.AGE) {
+  if (req.query.AGE.includes("-")) {
+    const [start, end] = req.query.AGE.split("-").map(Number);
+    whereClause += ` AND AGE BETWEEN ? AND ?`;
+    values.push(start, end);
+  } else {
+    whereClause += ` AND AGE = ?`;
+    values.push(req.query.AGE);
+  }
+}
+
+// Other simple filters
+if (req.query.SEX) {
+  whereClause += ` AND SEX = ?`;
+  values.push(req.query.SEX);
+}
+
+if (req.query.FNAME) {
+  whereClause += ` AND FNAME = ?`;
+  values.push(req.query.FNAME);
+}
+
+if (req.query.LNAME) {
+  whereClause += ` AND LNAME = ?`;
+  values.push(req.query.LNAME);
+}
 
     const [countResult] = await db.promise().query(
       `SELECT COUNT(*) as total FROM survey_admin ${whereClause}`,
