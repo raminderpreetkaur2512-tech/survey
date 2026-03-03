@@ -387,7 +387,7 @@ app.get("/app-records", async (req, res) => {
     const [rows] = await db.promise().query(
       `SELECT * FROM survey_admin
        ${whereClause}
-       ORDER BY id DESC
+      ORDER BY CAST(PART AS UNSIGNED) ASC
        LIMIT ? OFFSET ?`,
       [...values, limit, offset]
     );
