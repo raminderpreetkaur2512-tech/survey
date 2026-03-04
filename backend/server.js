@@ -350,23 +350,26 @@ app.get("/app-records", async (req, res) => {
     let values = [];
 
     // Search
-    if (search) {
-      whereClause += `
-        AND (
-          FNAME LIKE ? OR 
-          LNAME LIKE ? OR 
-          CARDNO LIKE ? OR 
-          MNO LIKE ?
-        )
-      `;
-      values.push(
-        `%${search}%`,
-        `%${search}%`,
-        `%${search}%`,
-        `%${search}%`
-      );
-    }
+// Search (improved exact start match)
+if (search) {
+  whereClause += `
+    AND (
+      FNAME LIKE ? OR 
+      LNAME LIKE ? OR 
+      CONCAT(FNAME,' ',LNAME) LIKE ? OR
+      CARDNO LIKE ? OR 
+      MNO LIKE ?
+    )
+  `;
 
+  values.push(
+    `${search}%`,
+    `${search}%`,
+    `${search}%`,
+    `${search}%`,
+    `${search}%`
+  );
+}
     // Dynamic filter (PART / SEX / AGE / etc)
     // PART filter (single or range)
 if (req.query.PART) {
