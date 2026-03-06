@@ -139,17 +139,16 @@ app.post("/create-user", async (req, res) => {
 }
 
     // Check if already exists
-    const [existing] = await db.promise().query(
-      "SELECT id FROM users WHERE email = ? OR email = ?",
-      [email]
-    );
-
-    if (existing.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists"
-      });
-    }
+   const [existing] = await db.promise().query(
+  "SELECT id FROM users WHERE email = ?",
+  [email]
+);
+   if (existing.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Username already taken"
+  });
+}
 
     await db.promise().query(
       "INSERT INTO users (email, password) VALUES (?, ?)",
