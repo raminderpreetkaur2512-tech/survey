@@ -372,14 +372,28 @@ if (search) {
 }
     // Dynamic filter (PART / SEX / AGE / etc)
     // PART filter (single or range)
+// PART filter (single / range / multiple)
 if (req.query.PART) {
-  if (req.query.PART.includes("-")) {
+
+  if (req.query.PART.includes(",")) {
+
+    const parts = req.query.PART.split(",").map(Number);
+    const placeholders = parts.map(() => "?").join(",");
+
+    whereClause += ` AND CAST(PART AS UNSIGNED) IN (${placeholders})`;
+    values.push(...parts);
+
+  } else if (req.query.PART.includes("-")) {
+
     const [start, end] = req.query.PART.split("-").map(Number);
     whereClause += ` AND CAST(PART AS UNSIGNED) BETWEEN ? AND ?`;
     values.push(start, end);
+
   } else {
-    whereClause += ` AND PART = ?`;
-    values.push(req.query.PART);
+
+    whereClause += ` AND CAST(PART AS UNSIGNED) = ?`;
+    values.push(Number(req.query.PART));
+
   }
 }
 
