@@ -398,14 +398,28 @@ if (req.query.PART) {
 }
 
 // AGE filter (single or range)
+// AGE filter (single / range / multiple)
 if (req.query.AGE) {
-  if (req.query.AGE.includes("-")) {
+
+  if (req.query.AGE.includes(",")) {
+
+    const ages = req.query.AGE.split(",").map(Number);
+    const placeholders = ages.map(() => "?").join(",");
+
+    whereClause += ` AND AGE IN (${placeholders})`;
+    values.push(...ages);
+
+  } else if (req.query.AGE.includes("-")) {
+
     const [start, end] = req.query.AGE.split("-").map(Number);
     whereClause += ` AND AGE BETWEEN ? AND ?`;
     values.push(start, end);
+
   } else {
+
     whereClause += ` AND AGE = ?`;
-    values.push(req.query.AGE);
+    values.push(Number(req.query.AGE));
+
   }
 }
 
