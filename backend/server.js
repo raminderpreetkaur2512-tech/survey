@@ -131,16 +131,16 @@ app.post("/create-user", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and Password required"
-      });
-    }
+  if (!email || !password) {
+  return res.status(400).json({
+    success: false,
+    message: "Username/Email and Password required"
+  });
+}
 
     // Check if already exists
     const [existing] = await db.promise().query(
-      "SELECT id FROM users WHERE email = ?",
+      "SELECT id FROM users WHERE email = ? OR email = ?",
       [email]
     );
 
