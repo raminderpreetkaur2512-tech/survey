@@ -424,9 +424,18 @@ if (req.query.AGE) {
 }
 
 // Other simple filters
+// SEX filter (Male / Female / Transgender / Other)
 if (req.query.SEX) {
-  whereClause += ` AND SEX = ?`;
-  values.push(req.query.SEX);
+
+  const gender = req.query.SEX.toUpperCase();
+
+  const allowedGender = ["M", "F", "T", "O"];
+
+  if (allowedGender.includes(gender)) {
+    whereClause += ` AND SEX = ?`;
+    values.push(gender);
+  }
+
 }
 
 if (req.query.FNAME) {
